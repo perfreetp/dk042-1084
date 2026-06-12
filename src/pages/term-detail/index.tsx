@@ -12,7 +12,7 @@ import type { SceneType } from '@/types';
 
 const TermDetailPage: React.FC = () => {
   const router = useRouter();
-  const { termId } = router.params;
+  const { termId, from, levelId } = router.params;
   const { progress, toggleCollectTerm, addUserExample, removeUserExample } = useStore();
 
   const [showInput, setShowInput] = useState(false);
@@ -21,6 +21,13 @@ const TermDetailPage: React.FC = () => {
   const term = useMemo(() => {
     return termsData.find(t => t.id === termId);
   }, [termId]);
+
+  const fromLevelName = useMemo(() => {
+    if (from !== 'level_recommend' || !levelId) return null;
+    const { levelsData } = require('@/data/levels');
+    const level = levelsData.find((l: any) => l.id === levelId);
+    return level?.title || '关卡复盘';
+  }, [from, levelId]);
 
   const relatedQuestions = useMemo(() => {
     if (!term) return [];
@@ -97,9 +104,27 @@ const TermDetailPage: React.FC = () => {
     );
   }
 
+  const handleBackToLevel = () => {
+    if (levelId) {
+      Taro.redirectTo({ url: `/pages/level-detail/index?levelId=${levelId}` });
+    }
+  };
+
   return (
     <View className={styles.page}>
       <ScrollView scrollY>
+        {fromLevelName && (
+          <View className={styles.fromBanner} onClick={handleBackToLevel}>
+            <View className={styles.fromBannerLeft}>
+              <Text className={styles.fromBannerIcon}>📋</Text>
+              <View>
+                <Text className={styles.fromBannerLabel}>来自「{fromLevelName}」复盘推荐</Text>
+                <Text className={styles.fromBannerSub}>点击返回关卡详情</Text>
+              </View>
+            </View>
+            <Text className={styles.fromBannerArrow}>→</Text>
+          </View>
+        )}
         <View className={styles.termHeader} style={{ background: `linear-gradient(135deg, ${sceneColor} 0%, #8B5CF6 100%)` }}>
           <View className={styles.termTitleRow}>
             <View className={styles.termMainInfo}>

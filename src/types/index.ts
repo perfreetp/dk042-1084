@@ -136,6 +136,34 @@ export interface LevelAttempt {
   passed: boolean;
 }
 
+export interface DailyStudyLevel {
+  levelId: string;
+  score: number;
+  passed: boolean;
+  attemptedAt: number;
+}
+
+export interface DailyStudyMistake {
+  questionIds: string[];
+  correctCount: number;
+  totalCount: number;
+  completedAt: number;
+}
+
+export interface DailyStudyExample {
+  exampleId: string;
+  termId: string;
+  text: string;
+  createdAt: number;
+}
+
+export interface DailyStudyRecord {
+  date: string;
+  levels: DailyStudyLevel[];
+  mistakePractices: DailyStudyMistake[];
+  examples: DailyStudyExample[];
+}
+
 export interface StageTestResult {
   scene: SceneType;
   totalQuestions: number;

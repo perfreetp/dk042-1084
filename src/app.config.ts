@@ -11,7 +11,8 @@ export default defineAppConfig({
     'pages/ranking/index',
     'pages/stage-test/index',
     'pages/achievement/index',
-    'pages/user-examples/index'
+    'pages/user-examples/index',
+    'pages/today-review/index'
   ],
   window: {
     backgroundTextStyle: 'light',

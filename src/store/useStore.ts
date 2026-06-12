@@ -7,7 +7,11 @@ import type {
   Question,
   SceneType,
   RankingItem,
-  LevelAttempt
+  LevelAttempt,
+  DailyStudyRecord,
+  DailyStudyLevel,
+  DailyStudyMistake,
+  DailyStudyExample
 } from '@/types';
 import { getStorage, setStorage, storageKeys } from '@/utils/storage';
 import { getTodayStr, calculateStreak } from '@/utils/progress';
@@ -19,6 +23,7 @@ interface StoreState {
   mistakes: MistakeRecord[];
   achievements: Achievement[];
   dailyQuestion: DailyQuestion | null;
+  dailyStudy: DailyStudyRecord;
   userSettings: {
     remindEnabled: boolean;
     remindTime: string;
@@ -64,6 +69,16 @@ interface StoreState {
   addUserExample: (termId: string, text: string) => void;
 
   updateRemindSettings: (enabled?: boolean, time?: string) => void;
+
+  recordDailyLevelAttempt: (level: DailyStudyLevel) => void;
+
+  recordDailyMistakePractice: (mistake: DailyStudyMistake) => void;
+
+  recordDailyExample: (example: DailyStudyExample) => void;
+
+  removeDailyExample: (exampleId: string) => void;
+
+  getTodayStudy: () => DailyStudyRecord;
 }
 
 const defaultProgress: UserProgress = {
@@ -87,6 +102,13 @@ const defaultProgress: UserProgress = {
   levelAttempts: {}
 };
 
+const defaultDailyStudy: DailyStudyRecord = {
+  date: '',
+  levels: [],
+  mistakePractices: [],
+  examples: []
+};
+
 const defaultSettings = {
   remindEnabled: true,
   remindTime: '20:00',
@@ -106,11 +128,19 @@ const mockRankingList: RankingItem[] = [
   { rank: 10, userId: 'u10', nickname: '词汇量担当', score: 4120, streak: 15, accuracy: 82 }
 ];
 
+const getEmptyDailyStudy = (): DailyStudyRecord => ({
+  date: getTodayStr(),
+  levels: [],
+  mistakePractices: [],
+  examples: []
+});
+
 export const useStore = create<StoreState>((set, get) => ({
   progress: defaultProgress,
   mistakes: [],
   achievements: [...achievementsData],
   dailyQuestion: null,
+  dailyStudy: getEmptyDailyStudy(),
   userSettings: defaultSettings,
   rankingList: mockRankingList,
 
@@ -119,11 +149,15 @@ export const useStore = create<StoreState>((set, get) => ({
     const savedMistakes = getStorage<MistakeRecord[]>(storageKeys.MISTAKES, []);
     const savedAchievements = getStorage<Achievement[]>(storageKeys.ACHIEVEMENTS, achievementsData);
     const savedSettings = getStorage(storageKeys.USER_SETTINGS, defaultSettings);
+    const savedDailyStudy = getStorage<DailyStudyRecord>(storageKeys.DAILY_STUDY, getEmptyDailyStudy());
+    const today = getTodayStr();
+    const dailyStudy = savedDailyStudy.date === today ? savedDailyStudy : getEmptyDailyStudy();
 
     set({
       progress: { ...defaultProgress, ...savedProgress },
       mistakes: savedMistakes,
       achievements: savedAchievements,
+      dailyStudy,
       userSettings: { ...defaultSettings, ...savedSettings }
     });
 
@@ -262,11 +296,74 @@ export const useStore = create<StoreState>((set, get) => ({
   },
 
   removeUserExample: (exampleId) => {
-    const { progress } = get();
+    const { progress, dailyStudy } = get();
     const newExamples = progress.userExamples.filter(e => e.id !== exampleId);
     const newProgress = { ...progress, userExamples: newExamples };
     set({ progress: newProgress });
     setStorage(storageKeys.PROGRESS, newProgress);
+
+    const today = getTodayStr();
+    const ds = dailyStudy.date === today ? dailyStudy : getEmptyDailyStudy();
+    const newDs: DailyStudyRecord = {
+      ...ds,
+      examples: ds.examples.filter(e => e.exampleId !== exampleId)
+    };
+    set({ dailyStudy: newDs });
+    setStorage(storageKeys.DAILY_STUDY, newDs);
+  },
+
+  recordDailyLevelAttempt: (level) => {
+    const { dailyStudy } = get();
+    const today = getTodayStr();
+    const ds = dailyStudy.date === today ? dailyStudy : getEmptyDailyStudy();
+    const newDs: DailyStudyRecord = {
+      ...ds,
+      levels: [...ds.levels, level]
+    };
+    set({ dailyStudy: newDs });
+    setStorage(storageKeys.DAILY_STUDY, newDs);
+  },
+
+  recordDailyMistakePractice: (mistake) => {
+    const { dailyStudy } = get();
+    const today = getTodayStr();
+    const ds = dailyStudy.date === today ? dailyStudy : getEmptyDailyStudy();
+    const newDs: DailyStudyRecord = {
+      ...ds,
+      mistakePractices: [...ds.mistakePractices, mistake]
+    };
+    set({ dailyStudy: newDs });
+    setStorage(storageKeys.DAILY_STUDY, newDs);
+  },
+
+  recordDailyExample: (example) => {
+    const { dailyStudy } = get();
+    const today = getTodayStr();
+    const ds = dailyStudy.date === today ? dailyStudy : getEmptyDailyStudy();
+    const newDs: DailyStudyRecord = {
+      ...ds,
+      examples: [...ds.examples, example]
+    };
+    set({ dailyStudy: newDs });
+    setStorage(storageKeys.DAILY_STUDY, newDs);
+  },
+
+  removeDailyExample: (exampleId) => {
+    const { dailyStudy } = get();
+    const today = getTodayStr();
+    const ds = dailyStudy.date === today ? dailyStudy : getEmptyDailyStudy();
+    const newDs: DailyStudyRecord = {
+      ...ds,
+      examples: ds.examples.filter(e => e.exampleId !== exampleId)
+    };
+    set({ dailyStudy: newDs });
+    setStorage(storageKeys.DAILY_STUDY, newDs);
+  },
+
+  getTodayStudy: () => {
+    const { dailyStudy } = get();
+    const today = getTodayStr();
+    return dailyStudy.date === today ? dailyStudy : getEmptyDailyStudy();
   },
 
   checkAchievements: () => {
@@ -390,7 +487,7 @@ export const useStore = create<StoreState>((set, get) => ({
   },
 
   addUserExample: (termId, text) => {
-    const { progress } = get();
+    const { progress, dailyStudy } = get();
     const newExample = {
       id: `ue_${Date.now()}`,
       termId,
@@ -405,6 +502,20 @@ export const useStore = create<StoreState>((set, get) => ({
     };
     set({ progress: newProgress });
     setStorage(storageKeys.PROGRESS, newProgress);
+
+    const today = getTodayStr();
+    const ds = dailyStudy.date === today ? dailyStudy : getEmptyDailyStudy();
+    const newDs: DailyStudyRecord = {
+      ...ds,
+      examples: [...ds.examples, {
+        exampleId: newExample.id,
+        termId,
+        text,
+        createdAt: newExample.createdAt
+      }]
+    };
+    set({ dailyStudy: newDs });
+    setStorage(storageKeys.DAILY_STUDY, newDs);
   },
 
   updateRemindSettings: (enabled, time) => {

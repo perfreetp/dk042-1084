@@ -10,7 +10,7 @@ import { getSceneColor } from '@/utils/progress';
 import dayjs from 'dayjs';
 
 const ProfilePage: React.FC = () => {
-  const { progress, achievements, rankingList, userSettings, updateRemindSettings } = useStore();
+  const { progress, achievements, rankingList, userSettings, updateRemindSettings, dailyStudy, getTodayStudy } = useStore();
 
   const totalQuestions = progress.correctCount + progress.wrongCount;
   const accuracy = totalQuestions > 0
@@ -112,6 +112,24 @@ const ProfilePage: React.FC = () => {
             </Text>
           </View>
           <Text className={styles.rankTeaserBtn}>去看看 →</Text>
+        </View>
+
+        <View
+          className={styles.todayReviewCard}
+          onClick={() => navigateTo('/pages/today-review/index')}
+        >
+          <View className={styles.todayReviewLeft}>
+            <Text className={styles.todayReviewIcon}>📅</Text>
+            <View>
+              <Text className={styles.todayReviewTitle}>今日学习复盘</Text>
+              <Text className={styles.todayReviewDesc}>
+                {dailyStudy.levels.length > 0
+                  ? `已挑战 ${dailyStudy.levels.length} 关 · 重练错题 ${dailyStudy.mistakePractices.reduce((s, m) => s + m.totalCount, 0)} 道 · 贡献例句 ${dailyStudy.examples.length} 条`
+                  : '今天还没有学习记录哦'}
+              </Text>
+            </View>
+          </View>
+          <Text className={styles.todayReviewBtn}>查看 →</Text>
         </View>
 
         <View className={styles.sectionHeader}>

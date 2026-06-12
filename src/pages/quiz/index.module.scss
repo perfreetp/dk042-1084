@@ -651,3 +651,83 @@
   font-size: 24rpx;
   font-weight: 600;
 }
+
+.resultList {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.resultItem {
+  background: #F8FAFC;
+  border: 2rpx solid #E2E8F0;
+  border-radius: 16rpx;
+  overflow: hidden;
+}
+
+.resultItemHeader {
+  display: flex;
+  align-items: center;
+  padding: 20rpx;
+  gap: 16rpx;
+}
+
+.resultIndex {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.resultTitle {
+  flex: 1;
+  font-size: 26rpx;
+  color: #1E293B;
+  font-weight: 500;
+  line-height: 1.5;
+  min-width: 0;
+}
+
+.resultToggle {
+  font-size: 24rpx;
+  color: #94A3B8;
+  flex-shrink: 0;
+}
+
+.resultExpand {
+  padding: 0 20rpx 20rpx;
+  border-top: 1rpx solid #E2E8F0;
+  margin-top: -1rpx;
+  padding-top: 16rpx;
+}
+
+.resultExplanation {
+  background: #FFFBEB;
+  border-radius: 12rpx;
+  padding: 16rpx;
+  margin-bottom: 12rpx;
+}
+
+.resultExplanationLabel {
+  font-size: 22rpx;
+  color: #92400E;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 6rpx;
+}
+
+.resultExplanationText {
+  font-size: 24rpx;
+  color: #78350F;
+  line-height: 1.6;
+}
+
+.resultCompareRow {
+  padding: 8rpx 4rpx;
+  line-height: 1.6;
+}

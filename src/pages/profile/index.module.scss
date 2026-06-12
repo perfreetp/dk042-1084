@@ -336,3 +336,53 @@
   font-size: $font-size-sm;
   font-weight: $font-weight-semibold;
 }
+
+.todayReviewCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #C7D2FE 0%, #DDD6FE 100%);
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-lg;
+  box-shadow: 0 4rpx 20rpx rgba(99, 102, 241, 0.15);
+}
+
+.todayReviewLeft {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  flex: 1;
+  min-width: 0;
+}
+
+.todayReviewIcon {
+  font-size: 48rpx;
+  flex-shrink: 0;
+}
+
+.todayReviewTitle {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #3730A3;
+  display: block;
+  line-height: 1.3;
+}
+
+.todayReviewDesc {
+  font-size: 22rpx;
+  color: #4F46E5;
+  margin-top: 6rpx;
+  display: block;
+  line-height: 1.4;
+}
+
+.todayReviewBtn {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #4F46E5;
+  background: rgba(255, 255, 255, 0.6);
+  padding: 12rpx 24rpx;
+  border-radius: $radius-button;
+  flex-shrink: 0;
+}

@@ -277,6 +277,46 @@
   font-weight: 600;
 }
 
+.fromBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #E0E7FF 0%, #DDD6FE 100%);
+  margin: 24rpx 24rpx 0;
+  padding: 20rpx 24rpx;
+  border-radius: 16rpx;
+  border: 2rpx solid #C7D2FE;
+}
+
+.fromBannerLeft {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.fromBannerIcon {
+  font-size: 40rpx;
+}
+
+.fromBannerLabel {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #3730A3;
+  display: block;
+}
+
+.fromBannerSub {
+  font-size: 22rpx;
+  color: #6366F1;
+  display: block;
+  margin-top: 4rpx;
+}
+
+.fromBannerArrow {
+  font-size: 28rpx;
+  color: #818CF8;
+}
+
 .addExampleBox {
   margin-top: 16rpx;
   padding: 20rpx 0;

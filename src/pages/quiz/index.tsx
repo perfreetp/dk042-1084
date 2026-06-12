@@ -35,14 +35,15 @@ const QuizPage: React.FC = () => {
 
   const {
     recordAnswer,
-    addMistake,
     completeLevel,
     recordLevelAttempt,
     answerDailyQuestion,
     progress,
     updateStreak,
     dailyQuestion,
-    removeMasteredMistakes
+    removeMasteredMistakes,
+    recordDailyLevelAttempt,
+    recordDailyMistakePractice
   } = useStore();
 
   const questionList = useMemo<Question[]>(() => {
@@ -106,6 +107,7 @@ const QuizPage: React.FC = () => {
   const [startTime] = useState(Date.now());
   const [levelPassed, setLevelPassed] = useState(false);
   const [masteredRemoved, setMasteredRemoved] = useState(false);
+  const [expandedQuestionId, setExpandedQuestionId] = useState<string | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const currentQuestion = questionList[currentIdx];
@@ -240,10 +242,6 @@ const QuizPage: React.FC = () => {
       if (source === 'daily') {
         answerDailyQuestion(isCorrect);
       }
-      if (!isCorrect) {
-        const correctOpt = currentQuestion.options.find(o => o.key === currentQuestion.answer);
-        addMistake(currentQuestion, key, correctOpt?.key || '');
-      }
     }
   };
 
@@ -283,7 +281,24 @@ const QuizPage: React.FC = () => {
         attemptedAt: Date.now(),
         passed
       });
+
+      recordDailyLevelAttempt({
+        levelId,
+        score: totalScore,
+        passed,
+        attemptedAt: Date.now()
+      });
     }
+
+    if (source === 'mistakes') {
+      recordDailyMistakePractice({
+        questionIds: questionList.map(q => q.id),
+        correctCount,
+        totalCount: totalQuestions,
+        completedAt: Date.now()
+      });
+    }
+
     setShowSummary(true);
   };
 
@@ -321,6 +336,14 @@ const QuizPage: React.FC = () => {
     Taro.switchTab({ url: '/pages/home/index' });
   };
 
+  const handleGoMistakes = () => {
+    Taro.switchTab({ url: '/pages/mistakes/index' });
+  };
+
+  const toggleExpand = (qid: string) => {
+    setExpandedQuestionId(prev => prev === qid ? null : qid);
+  };
+
   const handleRetry = () => {
     setCurrentIdx(0);
     setAnswers(
@@ -344,7 +367,13 @@ const QuizPage: React.FC = () => {
   };
 
   const handleGoTerm = (termId: string) => {
-    Taro.navigateTo({ url: `/pages/term-detail/index?id=${termId}` });
+    if (source === 'level' && levelId) {
+      Taro.navigateTo({
+        url: `/pages/term-detail/index?id=${termId}&from=level_recommend&levelId=${levelId}`
+      });
+    } else {
+      Taro.navigateTo({ url: `/pages/term-detail/index?id=${termId}` });
+    }
   };
 
   if (questionList.length === 0) {
@@ -429,35 +458,128 @@ const QuizPage: React.FC = () => {
           </View>
 
           {source === 'mistakes' && (
-            <View className={styles.summarySection}>
-              <Text className={styles.summarySectionTitle}>
-                <Text>📊</Text> 错题掌握情况
-              </Text>
-              <View className={styles.masterRow}>
-                <View className={styles.masterBox} style={{ background: '#ECFDF5', borderColor: '#10B981' }}>
-                  <Text className={styles.masterCount} style={{ color: '#10B981' }}>
-                    {masteredMistakeIds.length}
-                  </Text>
-                  <Text className={styles.masterLabel}>已掌握</Text>
+            <>
+              <View className={styles.summarySection}>
+                <Text className={styles.summarySectionTitle}>
+                  <Text>📊</Text> 错题掌握情况
+                </Text>
+                <View className={styles.masterRow}>
+                  <View className={styles.masterBox} style={{ background: '#ECFDF5', borderColor: '#10B981' }}>
+                    <Text className={styles.masterCount} style={{ color: '#10B981' }}>
+                      {masteredMistakeIds.length}
+                    </Text>
+                    <Text className={styles.masterLabel}>已掌握</Text>
+                  </View>
+                  <View className={styles.masterBox} style={{ background: '#FEF2F2', borderColor: '#EF4444' }}>
+                    <Text className={styles.masterCount} style={{ color: '#EF4444' }}>
+                      {totalQuestions - masteredMistakeIds.length}
+                    </Text>
+                    <Text className={styles.masterLabel}>需继续巩固</Text>
+                  </View>
                 </View>
-                <View className={styles.masterBox} style={{ background: '#FEF2F2', borderColor: '#EF4444' }}>
-                  <Text className={styles.masterCount} style={{ color: '#EF4444' }}>
-                    {totalQuestions - masteredMistakeIds.length}
+                {masteredMistakeIds.length > 0 && !masteredRemoved && (
+                  <Text className={styles.removeMasteredBtn} onClick={handleRemoveMastered}>
+                    ✅ 从错题本移除这 {masteredMistakeIds.length} 道已掌握题目
                   </Text>
-                  <Text className={styles.masterLabel}>需继续巩固</Text>
-                </View>
+                )}
+                {masteredRemoved && (
+                  <Text style={{ fontSize: 24, color: '#10B981', textAlign: 'center', padding: 16 }}>
+                    ✓ 已从错题本移除掌握题目
+                  </Text>
+                )}
               </View>
-              {masteredMistakeIds.length > 0 && !masteredRemoved && (
-                <Text className={styles.removeMasteredBtn} onClick={handleRemoveMastered}>
-                  ✅ 从错题本移除这 {masteredMistakeIds.length} 道已掌握题目
-                </Text>
+
+              {masteredMistakeIds.length > 0 && (
+                <View className={styles.summarySection}>
+                  <Text className={styles.summarySectionTitle}>
+                    <Text>✅</Text> 已掌握（{masteredMistakeIds.length}道）
+                  </Text>
+                  <View className={styles.resultList}>
+                    {answers
+                      .map((a, idx) => ({ a, q: questionList[idx], idx }))
+                      .filter(x => x.a.isCorrect)
+                      .map(({ a, q, idx }) => (
+                        <View key={q.id} className={styles.resultItem}>
+                          <View
+                            className={styles.resultItemHeader}
+                            onClick={() => toggleExpand(q.id)}
+                          >
+                            <View className={styles.resultIndex} style={{ background: '#D1FAE5', color: '#065F46' }}>
+                              {idx + 1}
+                            </View>
+                            <Text className={styles.resultTitle}>{q.title}</Text>
+                            <Text className={styles.resultToggle}>
+                              {expandedQuestionId === q.id ? '▲' : '▼'}
+                            </Text>
+                          </View>
+                          {expandedQuestionId === q.id && (
+                            <View className={styles.resultExpand}>
+                              <View className={styles.resultExplanation}>
+                                <Text className={styles.resultExplanationLabel}>📖 解析</Text>
+                                <Text className={styles.resultExplanationText}>{q.explanation}</Text>
+                              </View>
+                              <View className={styles.resultCompareRow}>
+                                <Text style={{ color: '#10B981', fontSize: 24 }}>
+                                  ✓ 你的答案：{q.options.find(o => o.key === a.selectedKey)?.text}
+                                </Text>
+                              </View>
+                            </View>
+                          )}
+                        </View>
+                      ))}
+                  </View>
+                </View>
               )}
-              {masteredRemoved && (
-                <Text style={{ fontSize: 24, color: '#10B981', textAlign: 'center', padding: 16 }}>
-                  ✓ 已从错题本移除掌握题目
-                </Text>
+
+              {(totalQuestions - masteredMistakeIds.length) > 0 && (
+                <View className={styles.summarySection}>
+                  <Text className={styles.summarySectionTitle}>
+                    <Text>🔴</Text> 需继续巩固（{totalQuestions - masteredMistakeIds.length}道）
+                  </Text>
+                  <View className={styles.resultList}>
+                    {answers
+                      .map((a, idx) => ({ a, q: questionList[idx], idx }))
+                      .filter(x => !x.a.isCorrect)
+                      .map(({ a, q, idx }) => (
+                        <View key={q.id} className={styles.resultItem}>
+                          <View
+                            className={styles.resultItemHeader}
+                            onClick={() => toggleExpand(q.id)}
+                          >
+                            <View className={styles.resultIndex} style={{ background: '#FEE2E2', color: '#991B1B' }}>
+                              {idx + 1}
+                            </View>
+                            <Text className={styles.resultTitle}>{q.title}</Text>
+                            <Text className={styles.resultToggle}>
+                              {expandedQuestionId === q.id ? '▲' : '▼'}
+                            </Text>
+                          </View>
+                          {expandedQuestionId === q.id && (
+                            <View className={styles.resultExpand}>
+                              <View className={styles.resultExplanation}>
+                                <Text className={styles.resultExplanationLabel}>📖 解析</Text>
+                                <Text className={styles.resultExplanationText}>{q.explanation}</Text>
+                              </View>
+                              <View className={styles.resultCompareRow}>
+                                <Text style={{ color: '#EF4444', fontSize: 24 }}>
+                                  ✗ 你的答案：{a.selectedKey
+                                    ? q.options.find(o => o.key === a.selectedKey)?.text
+                                    : '未作答'}
+                                </Text>
+                              </View>
+                              <View className={styles.resultCompareRow}>
+                                <Text style={{ color: '#10B981', fontSize: 24 }}>
+                                  ✓ 正确答案：{q.options.find(o => o.key === q.answer)?.text}
+                                </Text>
+                              </View>
+                            </View>
+                          )}
+                        </View>
+                      ))}
+                  </View>
+                </View>
               )}
-            </View>
+            </>
           )}
 
           {source === 'level' && weakTypes.length > 0 && (
@@ -562,9 +684,15 @@ const QuizPage: React.FC = () => {
         </ScrollView>
 
         <View className={styles.bottomBar}>
-          <Button className={styles.btnSecondary} onClick={handleBackHome}>
-            返回首页
-          </Button>
+          {source === 'mistakes' ? (
+            <Button className={styles.btnSecondary} onClick={handleGoMistakes}>
+              ← 返回错题本
+            </Button>
+          ) : (
+            <Button className={styles.btnSecondary} onClick={handleBackHome}>
+              返回首页
+            </Button>
+          )}
           <Button className={styles.btnPrimary} onClick={handleRetry}>
             🔄 再来一次
           </Button>

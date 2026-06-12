@@ -7,7 +7,8 @@ export const storageKeys = {
   MISTAKES: `${STORAGE_PREFIX}mistakes`,
   ACHIEVEMENTS: `${STORAGE_PREFIX}achievements`,
   DAILY_QUESTION: `${STORAGE_PREFIX}daily_question`,
-  USER_SETTINGS: `${STORAGE_PREFIX}user_settings`
+  USER_SETTINGS: `${STORAGE_PREFIX}user_settings`,
+  DAILY_STUDY: `${STORAGE_PREFIX}daily_study`
 };
 
 export const getStorage = <T>(key: string, defaultValue: T): T => {
