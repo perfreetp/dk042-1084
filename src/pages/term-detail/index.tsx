@@ -13,7 +13,7 @@ import type { SceneType } from '@/types';
 const TermDetailPage: React.FC = () => {
   const router = useRouter();
   const { termId } = router.params;
-  const { progress, toggleCollectTerm, addUserExample } = useStore();
+  const { progress, toggleCollectTerm, addUserExample, removeUserExample } = useStore();
 
   const [showInput, setShowInput] = useState(false);
   const [exampleText, setExampleText] = useState('');
@@ -67,6 +67,24 @@ const TermDetailPage: React.FC = () => {
     Taro.navigateTo({
       url: `/pages/quiz/index?source=single&questionId=${qid}`
     });
+  };
+
+  const handleDeleteExample = (exampleId: string, text: string) => {
+    Taro.showModal({
+      title: '删除例句',
+      content: `确定删除「${text.slice(0, 20)}...」吗？`,
+      confirmColor: '#EF4444',
+      success: (res) => {
+        if (res.confirm) {
+          removeUserExample(exampleId);
+          Taro.showToast({ title: '已删除', icon: 'success' });
+        }
+      }
+    });
+  };
+
+  const handleGoMyExamples = () => {
+    Taro.navigateTo({ url: '/pages/user-examples/index' });
   };
 
   if (!term) {
@@ -173,23 +191,39 @@ const TermDetailPage: React.FC = () => {
             <View className={styles.cardHeader}>
               <View className={styles.cardIcon} style={{ background: '#FCE7F3' }}>💬</View>
               <Text className={styles.cardTitle}>职场例句</Text>
+              <Text className={styles.myExamplesLink} onClick={handleGoMyExamples}>
+                我的贡献 →
+              </Text>
             </View>
             <View className={styles.examplesList}>
-              {allExamples.map((ex, idx) => (
-                <View key={ex.id || idx} className={styles.exampleItem}>
-                  <Text className={styles.exampleQuote}>"</Text>
-                  <Text className={styles.exampleText}>{ex.text}</Text>
-                  <View className={styles.exampleMeta}>
-                    <Text className={styles.exampleAuthor}>
-                      {(ex as any).isUser ? `👤 ${ex.author || '用户贡献'}` : ex.author ? `💼 ${ex.author}` : '📝 职场实战'}
-                    </Text>
-                    <View className={styles.exampleLikes}>
-                      <Text>👍</Text>
-                      <Text>{ex.likes}</Text>
+              {allExamples.map((ex, idx) => {
+                const isUserContrib = (ex as any).isUser;
+                return (
+                  <View key={ex.id || idx} className={styles.exampleItem}>
+                    <Text className={styles.exampleQuote}>"</Text>
+                    <Text className={styles.exampleText}>{ex.text}</Text>
+                    <View className={styles.exampleMeta}>
+                      <Text className={styles.exampleAuthor}>
+                        {isUserContrib ? `👤 ${ex.author || '用户贡献'}` : ex.author ? `💼 ${ex.author}` : '📝 职场实战'}
+                      </Text>
+                      <View className={styles.exampleActions}>
+                        {isUserContrib && (
+                          <Text
+                            className={styles.exampleDelete}
+                            onClick={() => handleDeleteExample(ex.id, ex.text)}
+                          >
+                            🗑 删除
+                          </Text>
+                        )}
+                        <View className={styles.exampleLikes}>
+                          <Text>👍</Text>
+                          <Text>{ex.likes}</Text>
+                        </View>
+                      </View>
                     </View>
                   </View>
-                </View>
-              ))}
+                );
+              })}
             </View>
 
             <View className={styles.addExampleBox}>

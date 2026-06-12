@@ -251,12 +251,30 @@
   color: #94A3B8;
 }
 
+.exampleActions {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.exampleDelete {
+  font-size: 22rpx;
+  color: #EF4444;
+}
+
 .exampleLikes {
   display: flex;
   align-items: center;
   gap: 6rpx;
   font-size: 24rpx;
   color: #64748B;
+}
+
+.myExamplesLink {
+  margin-left: auto;
+  font-size: 24rpx;
+  color: #6366F1;
+  font-weight: 600;
 }
 
 .addExampleBox {

@@ -256,3 +256,93 @@
 }
 
 .emptyWrap { padding: 120rpx 0; }
+
+.todaySuggest {
+  background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-lg;
+  box-shadow: $shadow-card;
+}
+
+.tsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+}
+
+.tsTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: #92400E;
+  display: block;
+  line-height: 1.2;
+}
+
+.tsSubtitle {
+  font-size: $font-size-xs;
+  color: #A16207;
+  margin-top: 4rpx;
+  display: block;
+}
+
+.tsBtn {
+  background: #F59E0B;
+  color: #fff;
+  padding: 12rpx 24rpx;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  flex-shrink: 0;
+}
+
+.tsCard {
+  width: 280rpx;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  position: relative;
+  margin-right: $spacing-sm;
+}
+
+.tsRank {
+  position: absolute;
+  top: 12rpx;
+  left: 12rpx;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-bold;
+  color: #F59E0B;
+  background: rgba(245, 158, 11, 0.15);
+  padding: 2rpx 12rpx;
+  border-radius: $radius-round;
+}
+
+.tsCardTitle {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-semibold;
+  line-height: 1.4;
+  height: 72rpx;
+  display: block;
+  margin-bottom: $spacing-sm;
+  white-space: normal;
+  overflow: hidden;
+  margin-top: 32rpx;
+}
+
+.tsCardMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tsCardType {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+}
+
+.tsCardWrong {
+  font-size: $font-size-xs;
+  color: $color-error;
+}

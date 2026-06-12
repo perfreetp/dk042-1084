@@ -255,16 +255,57 @@ const ProfilePage: React.FC = () => {
 
           <View
             className={styles.menuItem}
+            onClick={() => navigateTo('/pages/user-examples/index')}
+          >
+            <View className={styles.menuIcon} style={{ background: 'rgba(236,72,153,0.12)' }}>
+              <Text className={styles.menuIconText}>✏️</Text>
+            </View>
+            <View className={styles.menuInfo}>
+              <Text className={styles.menuLabel}>我的例句贡献</Text>
+              <Text className={styles.menuDesc}>查看和管理你补充的职场黑话例句</Text>
+            </View>
+            <Text className={styles.menuExtra}>
+              {progress.userExamples.length}条
+            </Text>
+            <Text className={styles.menuArrow}>›</Text>
+          </View>
+
+          <View
+            className={styles.menuItem}
             onClick={() => {
+              const showTimePicker = (afterEnable = false) => {
+                Taro.showActionSheet({
+                  itemList: ['20:00（推荐晚间复习）', '09:00（早晨开工前）', '12:30（午休充电）', '18:00（下班路上）', '取消'],
+                  success: (res) => {
+                    const times = ['20:00', '09:00', '12:30', '18:00'];
+                    if (res.tapIndex >= 0 && res.tapIndex < times.length) {
+                      updateRemindSettings(true, times[res.tapIndex]);
+                      Taro.showToast({
+                        title: afterEnable
+                          ? `已开启 ${times[res.tapIndex]} 提醒`
+                          : `已改为 ${times[res.tapIndex]} 提醒`,
+                        icon: 'success'
+                      });
+                    }
+                  }
+                });
+              };
+
               Taro.showActionSheet({
                 itemList: userSettings.remindEnabled
-                  ? ['关闭提醒', '修改提醒时间', '取消']
+                  ? ['关闭提醒', '换成 20:00 提醒', '换成 09:00 提醒', '换成 12:30 提醒', '换成 18:00 提醒', '取消']
                   : ['开启提醒（20:00）', '开启提醒（09:00）', '开启提醒（12:30）', '开启提醒（18:00）', '取消'],
                 success: (res) => {
                   if (userSettings.remindEnabled) {
                     if (res.tapIndex === 0) {
                       updateRemindSettings(false);
                       Taro.showToast({ title: '已关闭学习提醒', icon: 'success' });
+                    } else {
+                      const times = ['', '20:00', '09:00', '12:30', '18:00'];
+                      if (res.tapIndex >= 1 && res.tapIndex <= 4) {
+                        updateRemindSettings(true, times[res.tapIndex]);
+                        Taro.showToast({ title: `已改为 ${times[res.tapIndex]} 提醒`, icon: 'success' });
+                      }
                     }
                   } else {
                     const times = ['20:00', '09:00', '12:30', '18:00'];

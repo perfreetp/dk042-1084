@@ -79,8 +79,111 @@
   }
 }
 
-.contentCard {
+.attemptCard {
   margin: -24rpx 24rpx 24rpx;
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 28rpx;
+  box-shadow: 0 4rpx 24rpx rgba(0, 0, 0, 0.08);
+  border: 2rpx solid #E0E7FF;
+}
+
+.attemptHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8rpx;
+}
+
+.attemptTitle {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #1E293B;
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.attemptBadge {
+  font-size: 22rpx;
+  font-weight: 600;
+  padding: 6rpx 18rpx;
+  border-radius: 16rpx;
+}
+
+.attemptBadgePassed {
+  background: #D1FAE5;
+  color: #065F46;
+}
+
+.attemptBadgeFailed {
+  background: #FEE2E2;
+  color: #991B1B;
+}
+
+.attemptTime {
+  font-size: 22rpx;
+  color: #94A3B8;
+  display: block;
+  margin-bottom: 20rpx;
+}
+
+.attemptStats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16rpx;
+  margin-bottom: 20rpx;
+}
+
+.attemptStatItem {
+  text-align: center;
+  padding: 16rpx 8rpx;
+  background: #F8FAFC;
+  border-radius: 16rpx;
+}
+
+.attemptStatValue {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #1E293B;
+  display: block;
+  line-height: 1.2;
+}
+
+.attemptStatLabel {
+  font-size: 22rpx;
+  color: #94A3B8;
+  margin-top: 4rpx;
+  display: block;
+}
+
+.attemptWeak {
+  display: flex;
+  align-items: flex-start;
+  gap: 12rpx;
+  margin-top: 16rpx;
+  flex-wrap: wrap;
+}
+
+.attemptWeakLabel {
+  font-size: 24rpx;
+  color: #64748B;
+  font-weight: 600;
+  flex-shrink: 0;
+  padding-top: 4rpx;
+}
+
+.attemptTermTag {
+  font-size: 22rpx;
+  background: #EEF2FF;
+  color: #4F46E5;
+  padding: 6rpx 16rpx;
+  border-radius: 12rpx;
+  font-weight: 500;
+}
+
+.contentCard {
+  margin: 0 24rpx 24rpx;
   background: #fff;
   border-radius: 24rpx;
   padding: 32rpx;

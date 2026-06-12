@@ -6,7 +6,8 @@ import type {
   DailyQuestion,
   Question,
   SceneType,
-  RankingItem
+  RankingItem,
+  LevelAttempt
 } from '@/types';
 import { getStorage, setStorage, storageKeys } from '@/utils/storage';
 import { getTodayStr, calculateStreak } from '@/utils/progress';
@@ -46,6 +47,12 @@ interface StoreState {
 
   completeLevel: (levelId: string, score: number, requiredScore: number) => boolean;
 
+  recordLevelAttempt: (attempt: LevelAttempt) => void;
+
+  removeMasteredMistakes: (questionIds: string[]) => void;
+
+  removeUserExample: (exampleId: string) => void;
+
   checkAchievements: () => void;
 
   getDailyQuestion: () => DailyQuestion;
@@ -76,7 +83,8 @@ const defaultProgress: UserProgress = {
     hiring: { total: 0, correct: 0 },
     review: { total: 0, correct: 0 }
   },
-  userExamples: []
+  userExamples: [],
+  levelAttempts: {}
 };
 
 const defaultSettings = {
@@ -231,6 +239,34 @@ export const useStore = create<StoreState>((set, get) => ({
     get().checkAchievements();
     console.log('[Store] level attempt:', levelId, score, 'required:', requiredScore, 'passed:', passed);
     return passed;
+  },
+
+  recordLevelAttempt: (attempt) => {
+    const { progress } = get();
+    const newProgress = {
+      ...progress,
+      levelAttempts: {
+        ...progress.levelAttempts,
+        [attempt.levelId]: attempt
+      }
+    };
+    set({ progress: newProgress });
+    setStorage(storageKeys.PROGRESS, newProgress);
+  },
+
+  removeMasteredMistakes: (questionIds) => {
+    const { mistakes } = get();
+    const newMistakes = mistakes.filter(m => !questionIds.includes(m.question.id));
+    set({ mistakes: newMistakes });
+    setStorage(storageKeys.MISTAKES, newMistakes);
+  },
+
+  removeUserExample: (exampleId) => {
+    const { progress } = get();
+    const newExamples = progress.userExamples.filter(e => e.id !== exampleId);
+    const newProgress = { ...progress, userExamples: newExamples };
+    set({ progress: newProgress });
+    setStorage(storageKeys.PROGRESS, newProgress);
   },
 
   checkAchievements: () => {

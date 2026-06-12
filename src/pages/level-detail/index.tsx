@@ -1,13 +1,16 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, Button } from '@tarojs/components';
+import classnames from 'classnames';
 import Taro, { useRouter } from '@tarojs/taro';
 import styles from './index.module.scss';
 import { levelsData, scenesData } from '@/data/levels';
 import { questionsData } from '@/data/questions';
+import { termsData } from '@/data/terms';
 import { useStore } from '@/store/useStore';
-import { getSceneColor, getSceneIcon, getSceneName } from '@/utils/progress';
+import { getSceneColor, getSceneIcon, getSceneName, getQuestionTypeName } from '@/utils/progress';
 import SceneTag from '@/components/SceneTag';
 import ProgressBar from '@/components/ProgressBar';
+import dayjs from 'dayjs';
 
 const LevelDetailPage: React.FC = () => {
   const router = useRouter();
@@ -34,9 +37,15 @@ const LevelDetailPage: React.FC = () => {
 
   const currentScore = progress.levelScores[levelId || ''] || 0;
   const isCompleted = progress.completedLevelIds.includes(levelId || '');
+  const lastAttempt = levelId ? progress.levelAttempts[levelId] : undefined;
   const sceneColor = scene ? getSceneColor(scene.id) : '#6366F1';
   const sceneIcon = scene ? getSceneIcon(scene.id) : '📝';
   const totalPoints = questions.reduce((sum, q) => sum + (q?.points || 0), 0);
+
+  const lastAttemptTerms = useMemo(() => {
+    if (!lastAttempt?.weakTermIds?.length) return [];
+    return lastAttempt.weakTermIds.map(id => termsData.find(t => t.id === id)).filter(Boolean).slice(0, 3);
+  }, [lastAttempt]);
 
   useEffect(() => {
     if (!level) return;
@@ -144,6 +153,71 @@ const LevelDetailPage: React.FC = () => {
           )}
         </View>
       </View>
+
+      {lastAttempt && (
+        <View className={styles.attemptCard}>
+          <View className={styles.attemptHeader}>
+            <Text className={styles.attemptTitle}>
+              <Text>📊</Text> 最近一次挑战
+            </Text>
+            <View className={classnames(
+              styles.attemptBadge,
+              lastAttempt.passed ? styles.attemptBadgePassed : styles.attemptBadgeFailed
+            )}>
+              {lastAttempt.passed ? '已通关' : '未通关'}
+            </View>
+          </View>
+          <Text className={styles.attemptTime}>
+            {dayjs(lastAttempt.attemptedAt).format('YYYY-MM-DD HH:mm')}
+          </Text>
+          <View className={styles.attemptStats}>
+            <View className={styles.attemptStatItem}>
+              <Text className={styles.attemptStatValue} style={{ color: sceneColor }}>
+                {lastAttempt.score}
+              </Text>
+              <Text className={styles.attemptStatLabel}>得分</Text>
+            </View>
+            <View className={styles.attemptStatItem}>
+              <Text className={styles.attemptStatValue} style={{ color: '#10B981' }}>
+                {lastAttempt.correctCount}/{lastAttempt.totalQuestions}
+              </Text>
+              <Text className={styles.attemptStatLabel}>正确/总数</Text>
+            </View>
+            <View className={styles.attemptStatItem}>
+              <Text className={styles.attemptStatValue} style={{ color: '#6366F1' }}>
+                {lastAttempt.accuracy}%
+              </Text>
+              <Text className={styles.attemptStatLabel}>正确率</Text>
+            </View>
+          </View>
+          {lastAttempt.weakTypes?.length > 0 && (
+            <View className={styles.attemptWeak}>
+              <Text className={styles.attemptWeakLabel}>薄弱题型：</Text>
+              <View style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                {lastAttempt.weakTypes.map(t => (
+                  <SceneTag key={t} questionType={t} size='small' />
+                ))}
+              </View>
+            </View>
+          )}
+          {lastAttemptTerms.length > 0 && (
+            <View className={styles.attemptWeak}>
+              <Text className={styles.attemptWeakLabel}>需巩固词条：</Text>
+              <View style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                {lastAttemptTerms.map(t => (
+                  <Text
+                    key={t?.id}
+                    className={styles.attemptTermTag}
+                    onClick={() => Taro.navigateTo({ url: `/pages/term-detail/index?id=${t?.id}` })}
+                  >
+                    {t?.word}
+                  </Text>
+                ))}
+              </View>
+            </View>
+          )}
+        </View>
+      )}
 
       <View className={styles.contentCard}>
         <Text className={styles.sectionTitle}>

@@ -104,6 +104,7 @@ export interface UserProgress {
   levelScores: Record<string, number>;
   sceneProgress: Record<SceneType, { total: number; correct: number }>;
   userExamples: Example[];
+  levelAttempts: Record<string, LevelAttempt>;
 }
 
 export interface DailyQuestion {
@@ -121,6 +122,18 @@ export interface RankingItem {
   score: number;
   streak: number;
   accuracy: number;
+}
+
+export interface LevelAttempt {
+  levelId: string;
+  score: number;
+  correctCount: number;
+  totalQuestions: number;
+  accuracy: number;
+  weakTypes: QuestionType[];
+  weakTermIds: string[];
+  attemptedAt: number;
+  passed: boolean;
 }
 
 export interface StageTestResult {

@@ -6,9 +6,9 @@ import classnames from 'classnames';
 import { useStore } from '@/store/useStore';
 import SceneTag from '@/components/SceneTag';
 import EmptyState from '@/components/EmptyState';
-import { getSceneColor } from '@/utils/progress';
+import { getSceneColor, getQuestionTypeName } from '@/utils/progress';
 import dayjs from 'dayjs';
-import type { SceneType } from '@/types';
+import type { SceneType, MistakeRecord } from '@/types';
 
 const MistakesPage: React.FC = () => {
   const { mistakes, removeMistake, updateStreak } = useStore();
@@ -37,6 +37,16 @@ const MistakesPage: React.FC = () => {
     { id: 'review', name: '复盘' }
   ];
 
+  const suggestedToday = useMemo(() => {
+    if (mistakes.length === 0) return [] as MistakeRecord[];
+    const sorted = [...mistakes].sort((a, b) => {
+      const scoreA = a.wrongCount * 3 + (Date.now() - a.lastWrongAt < 3 * 24 * 3600 * 1000 ? 2 : 0) + (Date.now() - a.lastWrongAt < 24 * 3600 * 1000 ? 1 : 0);
+      const scoreB = b.wrongCount * 3 + (Date.now() - b.lastWrongAt < 3 * 24 * 3600 * 1000 ? 2 : 0) + (Date.now() - b.lastWrongAt < 24 * 3600 * 1000 ? 1 : 0);
+      return scoreB - scoreA;
+    });
+    return sorted.slice(0, Math.min(6, sorted.length));
+  }, [mistakes]);
+
   const getOptionText = (question, key) => {
     const opt = question.options.find(o => o.key === key);
     return opt ? `${key}. ${opt.text}` : key;
@@ -54,6 +64,15 @@ const MistakesPage: React.FC = () => {
         url: `/pages/quiz/index?source=mistakes&questionIds=${ids}`
       });
     }
+  };
+
+  const handlePracticeSuggested = () => {
+    if (suggestedToday.length === 0) return;
+    updateStreak();
+    const ids = suggestedToday.map(m => m.question.id).join(',');
+    Taro.navigateTo({
+      url: `/pages/quiz/index?source=mistakes&questionIds=${ids}`
+    });
   };
 
   const handleRemove = (questionId, title) => {
@@ -93,6 +112,46 @@ const MistakesPage: React.FC = () => {
             <Text className={styles.statLabel}>掌握率</Text>
           </View>
         </View>
+
+        {suggestedToday.length > 0 && (
+          <View className={styles.todaySuggest}>
+            <View className={styles.tsHeader}>
+              <View>
+                <Text className={styles.tsTitle}>🎯 今日建议重练</Text>
+                <Text className={styles.tsSubtitle}>
+                  基于错误次数和最近出错时间，推荐 {suggestedToday.length} 道优先攻克
+                </Text>
+              </View>
+              <Text className={styles.tsBtn} onClick={handlePracticeSuggested}>
+                开始练
+              </Text>
+            </View>
+            <ScrollView scrollX enhanced showScrollbar={false} style={{ whiteSpace: 'nowrap' }}>
+              {suggestedToday.map((m, idx) => {
+                const sceneColor = getSceneColor(m.question.scene);
+                return (
+                  <View
+                    key={m.question.id}
+                    className={styles.tsCard}
+                    style={{ display: 'inline-block', marginRight: 16 }}
+                    onClick={() => handlePractice(m.question.id)}
+                  >
+                    <View className={styles.tsRank}>#{idx + 1}</View>
+                    <Text className={styles.tsCardTitle} numberOfLines={2}>
+                      {m.question.title}
+                    </Text>
+                    <View className={styles.tsCardMeta}>
+                      <Text className={styles.tsCardType} style={{ color: sceneColor }}>
+                        {getQuestionTypeName(m.question.type)}
+                      </Text>
+                      <Text className={styles.tsCardWrong}>错 {m.wrongCount} 次</Text>
+                    </View>
+                  </View>
+                );
+              })}
+            </ScrollView>
+          </View>
+        )}
 
         <View className={styles.filterRow}>
           <ScrollView scrollX enhanced showScrollbar={false} style={{ whiteSpace: 'nowrap' }}>
@@ -206,13 +265,15 @@ const MistakesPage: React.FC = () => {
           </View>
         )}
 
-        {filteredMistakes.length >= 3 && (
+        {filteredMistakes.length >= 1 && (
           <View className={styles.practiceBar} onClick={() => handlePractice()}>
             <Text className={styles.practiceBarText}>
-              还有 {filteredMistakes.length} 道错题等待攻克
+              {filteredMistakes.length === 1
+                ? '有 1 道错题可以再练一次'
+                : `还有 ${filteredMistakes.length} 道错题等待攻克`}
             </Text>
             <Text className={styles.practiceBarBtn}>
-              一键重练 →
+              {filteredMistakes.length === 1 ? '单练这道 →' : '整组重练 →'}
             </Text>
           </View>
         )}

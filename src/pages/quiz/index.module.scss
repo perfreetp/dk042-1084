@@ -523,3 +523,131 @@
   flex: 1;
   min-width: 0;
 }
+
+.summarySub {
+  display: block;
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.masterRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16rpx;
+  margin-bottom: 20rpx;
+}
+
+.masterBox {
+  border: 2rpx solid;
+  border-radius: 20rpx;
+  padding: 24rpx;
+  text-align: center;
+}
+
+.masterCount {
+  font-size: 48rpx;
+  font-weight: 800;
+  display: block;
+  line-height: 1.2;
+}
+
+.masterLabel {
+  font-size: 24rpx;
+  color: #64748B;
+  margin-top: 4rpx;
+  display: block;
+}
+
+.removeMasteredBtn {
+  display: block;
+  text-align: center;
+  padding: 16rpx 24rpx;
+  background: linear-gradient(135deg, #10B981 0%, #34D399 100%);
+  color: #fff;
+  border-radius: 16rpx;
+  font-size: 26rpx;
+  font-weight: 600;
+}
+
+.weakTypeList {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.weakTypeItem {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 16rpx 20rpx;
+  background: #FFF7ED;
+  border: 2rpx solid #FED7AA;
+  border-radius: 16rpx;
+}
+
+.weakTypeIcon {
+  font-size: 32rpx;
+}
+
+.weakTypeName {
+  flex: 1;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #9A3412;
+}
+
+.weakTypeTip {
+  font-size: 22rpx;
+  color: #EA580C;
+  background: #FFEDD5;
+  padding: 4rpx 16rpx;
+  border-radius: 12rpx;
+}
+
+.termList {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16rpx;
+}
+
+.termCard {
+  background: #F8FAFC;
+  border: 2rpx solid #E2E8F0;
+  border-radius: 16rpx;
+  padding: 20rpx;
+}
+
+.termCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8rpx;
+}
+
+.termWord {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #1E293B;
+}
+
+.termMeaning {
+  font-size: 24rpx;
+  color: #64748B;
+  line-height: 1.6;
+  height: 76rpx;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.termFooter {
+  margin-top: 12rpx;
+  text-align: right;
+}
+
+.termView {
+  font-size: 24rpx;
+  font-weight: 600;
+}

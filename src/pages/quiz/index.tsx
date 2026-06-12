@@ -4,11 +4,12 @@ import { View, Text, Button, ScrollView } from '@tarojs/components';
 import Taro, { useRouter, useDidHide } from '@tarojs/taro';
 import styles from './index.module.scss';
 import { questionsData } from '@/data/questions';
+import { termsData } from '@/data/terms';
 import { useStore } from '@/store/useStore';
-import { getSceneColor, getQuestionTypeName, getQuestionTypeIcon } from '@/utils/progress';
+import { getSceneColor, getQuestionTypeName, getQuestionTypeIcon, getDifficultyName } from '@/utils/progress';
 import SceneTag from '@/components/SceneTag';
 import ProgressBar from '@/components/ProgressBar';
-import type { Question } from '@/types';
+import type { Question, QuestionType, Term } from '@/types';
 import { levelsData } from '@/data/levels';
 
 interface AnswerState {
@@ -36,10 +37,12 @@ const QuizPage: React.FC = () => {
     recordAnswer,
     addMistake,
     completeLevel,
+    recordLevelAttempt,
     answerDailyQuestion,
     progress,
     updateStreak,
-    dailyQuestion
+    dailyQuestion,
+    removeMasteredMistakes
   } = useStore();
 
   const questionList = useMemo<Question[]>(() => {
@@ -101,6 +104,8 @@ const QuizPage: React.FC = () => {
   const [timeLeft, setTimeLeft] = useState(0);
   const [showSummary, setShowSummary] = useState(false);
   const [startTime] = useState(Date.now());
+  const [levelPassed, setLevelPassed] = useState(false);
+  const [masteredRemoved, setMasteredRemoved] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const currentQuestion = questionList[currentIdx];
@@ -119,6 +124,42 @@ const QuizPage: React.FC = () => {
     : 0;
 
   const totalQuestions = questionList.length;
+
+  const { weakTypes, weakTerms, masteredMistakeIds } = useMemo(() => {
+    const typeStats: Record<QuestionType, { total: number; correct: number }> = {
+      meaning: { total: 0, correct: 0 },
+      intent: { total: 0, correct: 0 },
+      rewrite: { total: 0, correct: 0 }
+    };
+    const termStats: Record<string, { total: number; correct: number }> = {};
+    const mastered: string[] = [];
+
+    answers.forEach((a, idx) => {
+      const q = questionList[idx];
+      if (!q) return;
+      typeStats[q.type].total++;
+      if (a.isCorrect) typeStats[q.type].correct++;
+      if (q.relatedTermId) {
+        if (!termStats[q.relatedTermId]) termStats[q.relatedTermId] = { total: 0, correct: 0 };
+        termStats[q.relatedTermId].total++;
+        if (a.isCorrect) termStats[q.relatedTermId].correct++;
+      }
+      if (source === 'mistakes' && a.isCorrect) mastered.push(q.id);
+    });
+
+    const wt: QuestionType[] = (Object.keys(typeStats) as QuestionType[])
+      .filter(t => typeStats[t].total > 0 && typeStats[t].correct / typeStats[t].total < 0.6)
+      .sort((a, b) => (typeStats[a].correct / typeStats[a].total) - (typeStats[b].correct / typeStats[b].total));
+
+    const wIds: string[] = Object.keys(termStats)
+      .filter(id => termStats[id].total > 0 && termStats[id].correct / termStats[id].total < 1)
+      .sort((a, b) => (termStats[a].correct / termStats[a].total) - (termStats[b].correct / termStats[b].total))
+      .slice(0, 3);
+
+    const wTerms: Term[] = wIds.map(id => termsData.find(t => t.id === id)).filter((t): t is Term => !!t);
+
+    return { weakTypes: wt, weakTerms: wTerms, masteredMistakeIds: mastered };
+  }, [answers, questionList, source]);
 
   const stopTimer = useCallback(() => {
     if (timerRef.current) {
@@ -199,6 +240,10 @@ const QuizPage: React.FC = () => {
       if (source === 'daily') {
         answerDailyQuestion(isCorrect);
       }
+      if (!isCorrect) {
+        const correctOpt = currentQuestion.options.find(o => o.key === currentQuestion.answer);
+        addMistake(currentQuestion, key, correctOpt?.key || '');
+      }
     }
   };
 
@@ -216,8 +261,6 @@ const QuizPage: React.FC = () => {
     }
   };
 
-  const [levelPassed, setLevelPassed] = useState(false);
-
   const finishQuiz = () => {
     stopTimer();
     updateStreak();
@@ -228,6 +271,18 @@ const QuizPage: React.FC = () => {
       const requiredScore = level?.requiredScore || 60;
       passed = completeLevel(levelId, totalScore, requiredScore);
       setLevelPassed(passed);
+
+      recordLevelAttempt({
+        levelId,
+        score: totalScore,
+        correctCount,
+        totalQuestions,
+        accuracy,
+        weakTypes,
+        weakTermIds: weakTerms.map(t => t.id),
+        attemptedAt: Date.now(),
+        passed
+      });
     }
     setShowSummary(true);
   };
@@ -277,6 +332,19 @@ const QuizPage: React.FC = () => {
       }))
     );
     setShowSummary(false);
+    setLevelPassed(false);
+    setMasteredRemoved(false);
+  };
+
+  const handleRemoveMastered = () => {
+    if (masteredMistakeIds.length === 0) return;
+    removeMasteredMistakes(masteredMistakeIds);
+    setMasteredRemoved(true);
+    Taro.showToast({ title: `已移除 ${masteredMistakeIds.length} 道掌握错题`, icon: 'success' });
+  };
+
+  const handleGoTerm = (termId: string) => {
+    Taro.navigateTo({ url: `/pages/term-detail/index?id=${termId}` });
   };
 
   if (questionList.length === 0) {
@@ -303,6 +371,20 @@ const QuizPage: React.FC = () => {
       .map((a, idx) => ({ answer: a, question: questionList[idx], idx }))
       .filter(x => !x.answer.isCorrect);
 
+    const level = source === 'level' && levelId ? levelsData.find(l => l.id === levelId) : undefined;
+    const requiredScore = level?.requiredScore || 60;
+
+    const getNextAdvice = () => {
+      if (source !== 'level' || !level) return '';
+      if (passed) {
+        return '🎉 恭喜通关！建议挑战同场景下一关，或进入词条广场巩固相关黑话。';
+      }
+      if (accuracy >= 40) {
+        return '差一点就通关了！建议先复习本次错题，再针对薄弱题型专项训练。';
+      }
+      return '基础还需要夯实，建议回到词条广场学习相关黑话含义后再来挑战。';
+    };
+
     return (
       <View className={styles.page}>
         <ScrollView scrollY className={styles.summaryPage}>
@@ -310,8 +392,15 @@ const QuizPage: React.FC = () => {
             <Text className={styles.summaryScoreLabel}>本次得分</Text>
             <Text className={styles.summaryScore}>{totalScore}</Text>
             <View className={styles.summaryResult}>
-              {passed ? '🎉 完成练习' : '💪 继续加油'}
+              {source === 'level'
+                ? (passed ? '🎉 通关成功' : '💪 挑战未通过')
+                : passed ? '🎉 完成练习' : '💪 继续加油'}
             </View>
+            {source === 'level' && (
+              <Text className={styles.summarySub}>
+                通关分数：{requiredScore} 分 · {passed ? '已达标' : '未达标'}
+              </Text>
+            )}
           </View>
 
           <View className={styles.summaryStats}>
@@ -338,6 +427,104 @@ const QuizPage: React.FC = () => {
               <Text className={styles.summaryStatLabel}>正确率</Text>
             </View>
           </View>
+
+          {source === 'mistakes' && (
+            <View className={styles.summarySection}>
+              <Text className={styles.summarySectionTitle}>
+                <Text>📊</Text> 错题掌握情况
+              </Text>
+              <View className={styles.masterRow}>
+                <View className={styles.masterBox} style={{ background: '#ECFDF5', borderColor: '#10B981' }}>
+                  <Text className={styles.masterCount} style={{ color: '#10B981' }}>
+                    {masteredMistakeIds.length}
+                  </Text>
+                  <Text className={styles.masterLabel}>已掌握</Text>
+                </View>
+                <View className={styles.masterBox} style={{ background: '#FEF2F2', borderColor: '#EF4444' }}>
+                  <Text className={styles.masterCount} style={{ color: '#EF4444' }}>
+                    {totalQuestions - masteredMistakeIds.length}
+                  </Text>
+                  <Text className={styles.masterLabel}>需继续巩固</Text>
+                </View>
+              </View>
+              {masteredMistakeIds.length > 0 && !masteredRemoved && (
+                <Text className={styles.removeMasteredBtn} onClick={handleRemoveMastered}>
+                  ✅ 从错题本移除这 {masteredMistakeIds.length} 道已掌握题目
+                </Text>
+              )}
+              {masteredRemoved && (
+                <Text style={{ fontSize: 24, color: '#10B981', textAlign: 'center', padding: 16 }}>
+                  ✓ 已从错题本移除掌握题目
+                </Text>
+              )}
+            </View>
+          )}
+
+          {source === 'level' && weakTypes.length > 0 && (
+            <View className={styles.summarySection}>
+              <Text className={styles.summarySectionTitle}>
+                <Text>⚠️</Text> 薄弱题型
+              </Text>
+              <View className={styles.weakTypeList}>
+                {weakTypes.map(t => (
+                  <View key={t} className={styles.weakTypeItem}>
+                    <Text className={styles.weakTypeIcon}>{getQuestionTypeIcon(t)}</Text>
+                    <Text className={styles.weakTypeName}>{getQuestionTypeName(t)}</Text>
+                    <Text className={styles.weakTypeTip}>需重点练习</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {(source === 'level' || source === 'mistakes') && weakTerms.length > 0 && (
+            <View className={styles.summarySection}>
+              <Text className={styles.summarySectionTitle}>
+                <Text>📚</Text> 相关词条推荐
+              </Text>
+              <View className={styles.termList}>
+                {weakTerms.map(t => {
+                  const sceneColor = getSceneColor(t.scenes[0]);
+                  return (
+                    <View
+                      key={t.id}
+                      className={styles.termCard}
+                      onClick={() => handleGoTerm(t.id)}
+                    >
+                      <View className={styles.termCardHeader}>
+                        <Text className={styles.termWord}>{t.word}</Text>
+                        <SceneTag difficulty={t.difficulty} size='small' showIcon={false} />
+                      </View>
+                      <Text className={styles.termMeaning} numberOfLines={2}>
+                        {t.meaning}
+                      </Text>
+                      <View className={styles.termFooter}>
+                        <Text className={styles.termView} style={{ color: sceneColor }}>
+                          查看详情 →
+                        </Text>
+                      </View>
+                    </View>
+                  );
+                })}
+              </View>
+            </View>
+          )}
+
+          {source === 'level' && (
+            <View className={styles.summarySection}>
+              <Text className={styles.summarySectionTitle}>
+                <Text>🎯</Text> 下一步建议
+              </Text>
+              <Text style={{ fontSize: 28, color: '#475569', lineHeight: 1.8 }}>
+                {getNextAdvice()}
+              </Text>
+              {!passed && weakTypes.length > 0 && (
+                <Text style={{ fontSize: 26, color: '#94A3B8', lineHeight: 1.8, display: 'block', marginTop: 8 }}>
+                  建议练习重点：{weakTypes.map(t => getQuestionTypeName(t)).join('、')}
+                </Text>
+              )}
+            </View>
+          )}
 
           {wrongItems.length > 0 && (
             <View className={styles.summarySection}>
@@ -370,32 +557,6 @@ const QuizPage: React.FC = () => {
                   </View>
                 ))}
               </View>
-            </View>
-          )}
-
-          {source === 'level' && levelId && (
-            <View className={styles.summarySection}>
-              <Text className={styles.summarySectionTitle}>
-                <Text>💡</Text> {passed ? '关卡结果' : '挑战结果'}
-              </Text>
-              <Text style={{ fontSize: 28, color: '#475569', lineHeight: 1.8 }}>
-                {passed
-                  ? '🎉 恭喜通关！下一关已解锁，继续挑战更高难度吧！'
-                  : `未达到通关分数。本关需要 ${levelsData.find(l => l.id === levelId)?.requiredScore || 60} 分，差一点就通过了，复习错题再来一次！`}
-              </Text>
-            </View>
-          )}
-
-          {source === 'mistakes' && (
-            <View className={styles.summarySection}>
-              <Text className={styles.summarySectionTitle}>
-                <Text>💡</Text> 错题重练结果
-              </Text>
-              <Text style={{ fontSize: 28, color: '#475569', lineHeight: 1.8 }}>
-                {wrongItems.length === 0
-                  ? '🎉 太棒了！这些错题你已经全部掌握啦，可以从错题本移除了。'
-                  : `还有 ${wrongItems.length} 道题需要继续巩固，建议反复练习直到全部答对。`}
-              </Text>
             </View>
           )}
         </ScrollView>

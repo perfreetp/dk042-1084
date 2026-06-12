@@ -10,7 +10,8 @@ export default defineAppConfig({
     'pages/term-detail/index',
     'pages/ranking/index',
     'pages/stage-test/index',
-    'pages/achievement/index'
+    'pages/achievement/index',
+    'pages/user-examples/index'
   ],
   window: {
     backgroundTextStyle: 'light',
