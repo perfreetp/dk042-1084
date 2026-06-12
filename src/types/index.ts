@@ -14,6 +14,7 @@ export interface Scene {
 
 export interface Example {
   id: string;
+  termId?: string;
   text: string;
   author?: string;
   likes: number;

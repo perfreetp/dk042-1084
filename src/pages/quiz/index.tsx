@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
+import classnames from 'classnames';
 import { View, Text, Button, ScrollView } from '@tarojs/components';
 import Taro, { useRouter, useDidHide } from '@tarojs/taro';
 import styles from './index.module.scss';
@@ -8,6 +9,7 @@ import { getSceneColor, getQuestionTypeName, getQuestionTypeIcon } from '@/utils
 import SceneTag from '@/components/SceneTag';
 import ProgressBar from '@/components/ProgressBar';
 import type { Question } from '@/types';
+import { levelsData } from '@/data/levels';
 
 interface AnswerState {
   selectedKey: string | null;
@@ -24,8 +26,11 @@ const QuizPage: React.FC = () => {
     questionIds,
     levelId,
     scene,
-    mistakes: mistakeStr
+    mistakes: mistakeStr,
+    timed = '1'
   } = router.params;
+
+  const timedEnabled = timed !== '0';
 
   const {
     recordAnswer,
@@ -51,14 +56,21 @@ const QuizPage: React.FC = () => {
       list = ids
         .map(id => questionsData.find(q => q.id === id))
         .filter((q): q is Question => !!q);
-    } else if (source === 'mistakes' && mistakeStr) {
-      try {
-        const ids: string[] = JSON.parse(decodeURIComponent(mistakeStr));
+    } else if (source === 'mistakes') {
+      if (questionIds) {
+        const ids = questionIds.split(',');
         list = ids
           .map(id => questionsData.find(q => q.id === id))
           .filter((q): q is Question => !!q);
-      } catch (e) {
-        list = [];
+      } else if (mistakeStr) {
+        try {
+          const ids: string[] = JSON.parse(decodeURIComponent(mistakeStr));
+          list = ids
+            .map(id => questionsData.find(q => q.id === id))
+            .filter((q): q is Question => !!q);
+        } catch (e) {
+          list = [];
+        }
       }
     } else if (source === 'scenario' && questionIds) {
       const ids = questionIds.split(',');
@@ -68,6 +80,11 @@ const QuizPage: React.FC = () => {
     } else if (questionId) {
       const q = questionsData.find(q => q.id === questionId);
       if (q) list = [q];
+    } else if (questionIds) {
+      const ids = questionIds.split(',');
+      list = ids
+        .map(id => questionsData.find(q => q.id === id))
+        .filter((q): q is Question => !!q);
     }
     return list;
   }, [source, questionId, questionIds, mistakeStr, dailyQuestion]);
@@ -111,6 +128,10 @@ const QuizPage: React.FC = () => {
   }, []);
 
   const startTimer = useCallback((limit: number) => {
+    if (!timedEnabled) {
+      setTimeLeft(limit);
+      return;
+    }
     stopTimer();
     setTimeLeft(limit);
     const startedAt = Date.now();
@@ -123,9 +144,10 @@ const QuizPage: React.FC = () => {
         handleTimeout();
       }
     }, 200);
-  }, [stopTimer]);
+  }, [stopTimer, timedEnabled]);
 
   const handleTimeout = useCallback(() => {
+    if (!timedEnabled) return;
     setAnswers(prev => {
       if (prev[currentIdx].isAnswered) return prev;
       const newAnswers = [...prev];
@@ -140,14 +162,14 @@ const QuizPage: React.FC = () => {
     if (currentQuestion) {
       recordAnswer(currentQuestion, '', false, currentQuestion.timeLimit);
     }
-  }, [currentIdx, currentQuestion, recordAnswer]);
+  }, [currentIdx, currentQuestion, recordAnswer, timedEnabled]);
 
   useEffect(() => {
     if (currentQuestion && !currentAnswer.isAnswered && !showSummary) {
       startTimer(currentQuestion.timeLimit);
     }
     return () => stopTimer();
-  }, [currentIdx, showSummary]);
+  }, [currentIdx, showSummary, timedEnabled]);
 
   useDidHide(() => {
     stopTimer();
@@ -156,7 +178,9 @@ const QuizPage: React.FC = () => {
   const handleSelectOption = (key: string) => {
     if (currentAnswer.isAnswered) return;
     stopTimer();
-    const timeSpent = (currentQuestion?.timeLimit || 0) - timeLeft;
+    const timeSpent = timedEnabled
+      ? Math.max(1, (currentQuestion?.timeLimit || 0) - timeLeft)
+      : Math.max(1, Math.floor((Date.now() - startTime) / 1000) - currentIdx * 5);
     const isCorrect = key === currentQuestion?.answer;
 
     setAnswers(prev => {
@@ -192,14 +216,20 @@ const QuizPage: React.FC = () => {
     }
   };
 
+  const [levelPassed, setLevelPassed] = useState(false);
+
   const finishQuiz = () => {
     stopTimer();
-    setShowSummary(true);
     updateStreak();
 
+    let passed = true;
     if (source === 'level' && levelId) {
-      completeLevel(levelId, totalScore);
+      const level = levelsData.find(l => l.id === levelId);
+      const requiredScore = level?.requiredScore || 60;
+      passed = completeLevel(levelId, totalScore, requiredScore);
+      setLevelPassed(passed);
     }
+    setShowSummary(true);
   };
 
   const getOptionClass = (key: string) => {
@@ -260,9 +290,14 @@ const QuizPage: React.FC = () => {
   }
 
   if (showSummary) {
-    const passed = source === 'level'
-      ? true
-      : true;
+    let passed = true;
+    if (source === 'level' && levelId) {
+      passed = levelPassed;
+    } else if (source === 'mistakes') {
+      passed = accuracy >= 60;
+    } else {
+      passed = accuracy >= 60;
+    }
 
     const wrongItems = answers
       .map((a, idx) => ({ answer: a, question: questionList[idx], idx }))
@@ -341,14 +376,25 @@ const QuizPage: React.FC = () => {
           {source === 'level' && levelId && (
             <View className={styles.summarySection}>
               <Text className={styles.summarySectionTitle}>
-                <Text>💡</Text> 学习提示
+                <Text>💡</Text> {passed ? '关卡结果' : '挑战结果'}
               </Text>
               <Text style={{ fontSize: 28, color: '#475569', lineHeight: 1.8 }}>
-                {accuracy >= 80
-                  ? '表现优秀！你已经掌握了本关的大部分内容，可以继续挑战下一关啦。'
-                  : accuracy >= 60
-                  ? '还不错！建议复习一下错题，把不熟悉的词条加入收藏，巩固记忆。'
-                  : '需要加强练习！建议先去词条广场看看相关词条，再回来挑战。'}
+                {passed
+                  ? '🎉 恭喜通关！下一关已解锁，继续挑战更高难度吧！'
+                  : `未达到通关分数。本关需要 ${levelsData.find(l => l.id === levelId)?.requiredScore || 60} 分，差一点就通过了，复习错题再来一次！`}
+              </Text>
+            </View>
+          )}
+
+          {source === 'mistakes' && (
+            <View className={styles.summarySection}>
+              <Text className={styles.summarySectionTitle}>
+                <Text>💡</Text> 错题重练结果
+              </Text>
+              <Text style={{ fontSize: 28, color: '#475569', lineHeight: 1.8 }}>
+                {wrongItems.length === 0
+                  ? '🎉 太棒了！这些错题你已经全部掌握啦，可以从错题本移除了。'
+                  : `还有 ${wrongItems.length} 道题需要继续巩固，建议反复练习直到全部答对。`}
               </Text>
             </View>
           )}
@@ -385,10 +431,22 @@ const QuizPage: React.FC = () => {
             />
           </View>
         </View>
-        <View className={`${styles.timerBox} ${timerDanger ? styles.timerBoxDanger : ''}`}>
-          <Text className={styles.timerIcon}>⏱</Text>
-          <Text className={`${styles.timerText} ${timerDanger ? styles.timerTextDanger : ''}`}>
-            {timeLeft}s
+        <View
+          className={classnames(
+            styles.timerBox,
+            timedEnabled && timerDanger && styles.timerBoxDanger
+          )}
+          style={!timedEnabled ? { background: '#ECFDF5' } : undefined}
+        >
+          <Text className={styles.timerIcon}>{timedEnabled ? '⏱' : '✅'}</Text>
+          <Text
+            className={classnames(
+              styles.timerText,
+              timedEnabled && timerDanger && styles.timerTextDanger
+            )}
+            style={!timedEnabled ? { color: '#059669' } : undefined}
+          >
+            {timedEnabled ? `${timeLeft}s` : '不限时'}
           </Text>
         </View>
       </View>

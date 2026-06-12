@@ -33,11 +33,13 @@ const TermDetailPage: React.FC = () => {
 
   const allExamples = useMemo(() => {
     if (!term) return [];
-    const userExamples = progress.userExamples.map(ue => ({
-      ...ue,
-      isUser: true
-    }));
-    return [...term.examples, ...userExamples];
+    const termUserExamples = progress.userExamples
+      .filter(ue => ue.termId === term.id)
+      .map(ue => ({
+        ...ue,
+        isUser: true
+      }));
+    return [...term.examples, ...termUserExamples];
   }, [term, progress.userExamples]);
 
   const handleCollect = () => {

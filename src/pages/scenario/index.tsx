@@ -44,7 +44,7 @@ const ScenarioPage: React.FC = () => {
  const handleStartQuiz = (questionId: string) => {
  updateStreak();
  Taro.navigateTo({
- url: `/pages/quiz/index?source=scenario&questionId=${questionId}&timer=${timerEnabled}`
+ url: `/pages/quiz/index?source=scenario&questionId=${questionId}&timed=${timerEnabled ? 1 : 0}`
  });
  };
  const handleRandomStart = () => {

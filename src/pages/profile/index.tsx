@@ -10,7 +10,7 @@ import { getSceneColor } from '@/utils/progress';
 import dayjs from 'dayjs';
 
 const ProfilePage: React.FC = () => {
-  const { progress, achievements, rankingList, userSettings } = useStore();
+  const { progress, achievements, rankingList, userSettings, updateRemindSettings } = useStore();
 
   const totalQuestions = progress.correctCount + progress.wrongCount;
   const accuracy = totalQuestions > 0
@@ -255,12 +255,27 @@ const ProfilePage: React.FC = () => {
 
           <View
             className={styles.menuItem}
-            onClick={() => Taro.showModal({
-              title: '学习提醒',
-              content: `当前设置：每天${userSettings.remindTime}提醒学习\n\n开启后将在设置时间发送通知`,
-              showCancel: true,
-              confirmText: userSettings.remindEnabled ? '关闭' : '开启'
-            })}
+            onClick={() => {
+              Taro.showActionSheet({
+                itemList: userSettings.remindEnabled
+                  ? ['关闭提醒', '修改提醒时间', '取消']
+                  : ['开启提醒（20:00）', '开启提醒（09:00）', '开启提醒（12:30）', '开启提醒（18:00）', '取消'],
+                success: (res) => {
+                  if (userSettings.remindEnabled) {
+                    if (res.tapIndex === 0) {
+                      updateRemindSettings(false);
+                      Taro.showToast({ title: '已关闭学习提醒', icon: 'success' });
+                    }
+                  } else {
+                    const times = ['20:00', '09:00', '12:30', '18:00'];
+                    if (res.tapIndex >= 0 && res.tapIndex < times.length) {
+                      updateRemindSettings(true, times[res.tapIndex]);
+                      Taro.showToast({ title: `已开启 ${times[res.tapIndex]} 提醒`, icon: 'success' });
+                    }
+                  }
+                }
+              });
+            }}
           >
             <View className={styles.menuIcon} style={{ background: 'rgba(6,182,212,0.12)' }}>
               <Text className={styles.menuIconText}>🔔</Text>

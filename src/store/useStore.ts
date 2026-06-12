@@ -44,7 +44,7 @@ interface StoreState {
 
   toggleCollectTerm: (termId: string) => void;
 
-  completeLevel: (levelId: string, score: number) => void;
+  completeLevel: (levelId: string, score: number, requiredScore: number) => boolean;
 
   checkAchievements: () => void;
 
@@ -55,6 +55,8 @@ interface StoreState {
   updateStreak: () => void;
 
   addUserExample: (termId: string, text: string) => void;
+
+  updateRemindSettings: (enabled?: boolean, time?: string) => void;
 }
 
 const defaultProgress: UserProgress = {
@@ -209,10 +211,11 @@ export const useStore = create<StoreState>((set, get) => ({
     get().checkAchievements();
   },
 
-  completeLevel: (levelId, score) => {
+  completeLevel: (levelId, score, requiredScore) => {
     const { progress } = get();
+    const passed = score >= requiredScore;
     const completed = [...progress.completedLevelIds];
-    if (!completed.includes(levelId)) {
+    if (passed && !completed.includes(levelId)) {
       completed.push(levelId);
     }
     const newProgress = {
@@ -226,7 +229,8 @@ export const useStore = create<StoreState>((set, get) => ({
     set({ progress: newProgress });
     setStorage(storageKeys.PROGRESS, newProgress);
     get().checkAchievements();
-    console.log('[Store] level completed:', levelId, score);
+    console.log('[Store] level attempt:', levelId, score, 'required:', requiredScore, 'passed:', passed);
+    return passed;
   },
 
   checkAchievements: () => {
@@ -353,6 +357,7 @@ export const useStore = create<StoreState>((set, get) => ({
     const { progress } = get();
     const newExample = {
       id: `ue_${Date.now()}`,
+      termId,
       text,
       author: progress.masteredTermIds.length > 10 ? '资深学员' : '新锐学员',
       likes: 0,
@@ -364,5 +369,17 @@ export const useStore = create<StoreState>((set, get) => ({
     };
     set({ progress: newProgress });
     setStorage(storageKeys.PROGRESS, newProgress);
+  },
+
+  updateRemindSettings: (enabled, time) => {
+    const { userSettings } = get();
+    const newSettings = {
+      ...userSettings,
+      remindEnabled: typeof enabled === 'boolean' ? enabled : userSettings.remindEnabled,
+      remindTime: time || userSettings.remindTime
+    };
+    set({ userSettings: newSettings });
+    setStorage(storageKeys.USER_SETTINGS, newSettings);
+    console.log('[Store] remind settings updated:', newSettings);
   }
 }));

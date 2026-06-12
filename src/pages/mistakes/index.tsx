@@ -46,12 +46,12 @@ const MistakesPage: React.FC = () => {
     updateStreak();
     if (questionId) {
       Taro.navigateTo({
-        url: `/pages/quiz/index?source=mistake&questionId=${questionId}`
+        url: `/pages/quiz/index?source=mistakes&questionIds=${questionId}`
       });
     } else {
       const ids = filteredMistakes.map(m => m.question.id).join(',');
       Taro.navigateTo({
-        url: `/pages/quiz/index?source=mistakePractice&ids=${ids}`
+        url: `/pages/quiz/index?source=mistakes&questionIds=${ids}`
       });
     }
   };
