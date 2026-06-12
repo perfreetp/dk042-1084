@@ -1,0 +1,286 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  padding-bottom: 48rpx;
+}
+
+.filterBar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: $color-bg-page-gradient;
+  padding: $spacing-md 0;
+  margin: 0 (-$page-padding) $spacing-md;
+  padding-left: $page-padding;
+}
+
+.scrollWrap {
+  @include scroll-x-container;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.filterChip {
+  @include scroll-x-item(auto);
+  display: inline-flex;
+  align-items: center;
+  padding: 14rpx 28rpx;
+  border-radius: $radius-round;
+  background: $color-bg-card;
+  margin-right: $spacing-sm;
+  gap: $spacing-xs;
+  box-shadow: $shadow-card;
+  transition: all $transition-base;
+}
+
+.filterChipActive {
+  background: $color-primary-gradient;
+  box-shadow: 0 4rpx 16rpx rgba(99, 102, 241, 0.25);
+}
+
+.filterChipText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+}
+
+.filterChipActiveText {
+  color: $color-text-white;
+}
+
+.typeFilters {
+  display: flex;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-lg;
+  flex-wrap: wrap;
+}
+
+.typeChip {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: 12rpx 24rpx;
+  background: $color-bg-card;
+  border-radius: $radius-round;
+  border: 2rpx solid transparent;
+  transition: all $transition-base;
+}
+
+.typeChipActive {
+  background: $color-primary-bg;
+  border-color: $color-primary;
+}
+
+.typeChipText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.typeChipActiveText {
+  color: $color-primary;
+  font-weight: $font-weight-semibold;
+}
+
+.sectionTitle {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.difficultyRow {
+  display: flex;
+  gap: $spacing-md;
+  margin-bottom: $spacing-lg;
+}
+
+.difficultyItem {
+  flex: 1;
+  padding: $spacing-md;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  text-align: center;
+  box-shadow: $shadow-card;
+  transition: all $transition-base;
+}
+
+.difficultyItemActive {
+  transform: translateY(-4rpx);
+  box-shadow: 0 8rpx 20rpx rgba(0, 0, 0, 0.1);
+}
+
+.difficultyIcon {
+  font-size: 40rpx;
+  display: block;
+  margin-bottom: $spacing-xs;
+}
+
+.difficultyName {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.difficultyCount {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.randomCard {
+  background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
+  border-radius: $radius-xl;
+  padding: $spacing-xl $spacing-lg;
+  margin-bottom: $spacing-lg;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4rpx 16rpx rgba(99, 102, 241, 0.12);
+}
+
+.randomInfo {
+  flex: 1;
+}
+
+.randomTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-primary-dark;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.randomDesc {
+  font-size: $font-size-sm;
+  color: rgba(79, 70, 229, 0.8);
+}
+
+.randomBtn {
+  @include button-reset;
+  padding: 0 $spacing-xl;
+  height: $button-height-md;
+  background: $color-primary-gradient;
+  color: $color-text-white;
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  transition: all $transition-base;
+  &:active { transform: scale(0.98); }
+}
+
+.questionList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.questionCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+  transition: all $transition-base;
+  &:active { transform: scale(0.99); }
+}
+
+.qcHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-md;
+  margin-bottom: $spacing-md;
+}
+
+.qcBadge {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: $radius-md;
+  @include flex-center;
+  flex-shrink: 0;
+}
+
+.qcBadgeText {
+  font-size: 32rpx;
+}
+
+.qcInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.qcTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: block;
+  line-height: $line-height-normal;
+  margin-bottom: $spacing-sm;
+  @include text-ellipsis-multi(2);
+}
+
+.qcTags {
+  display: flex;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+}
+
+.qcFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: $spacing-md;
+  border-top: 2rpx solid $color-divider;
+}
+
+.qcMeta {
+  display: flex;
+  align-items: center;
+  gap: $spacing-lg;
+}
+
+.qcMetaItem {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+.qcMetaText {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.qcStartBtn {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-primary;
+}
+
+.timerCard {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-sm $spacing-md;
+  background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+  border-radius: $radius-lg;
+  margin-bottom: $spacing-lg;
+}
+
+.timerIcon { font-size: 28rpx; }
+
+.timerText {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: #92400E;
+  flex: 1;
+}
+
+.timerSwitch {
+  font-size: 40rpx;
+}
+
+.emptyWrap {
+  padding: 80rpx 0;
+}

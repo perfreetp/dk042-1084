@@ -1,0 +1,147 @@
+@use '@/styles/variables.scss' as *;
+
+.card {
+  background-color: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+  margin-bottom: $spacing-md;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.99);
+    box-shadow: $shadow-card-hover;
+  }
+}
+
+.locked {
+  opacity: 0.6;
+
+  &:active {
+    transform: none;
+    box-shadow: $shadow-card;
+  }
+}
+
+.completed {
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4rpx;
+    background: $color-primary-gradient;
+    border-radius: $radius-lg $radius-lg 0 0;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+  gap: $spacing-md;
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  flex: 1;
+  min-width: 0;
+}
+
+.levelBadge {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: $radius-md;
+  @include flex-center;
+  flex-shrink: 0;
+}
+
+.levelIcon {
+  font-size: 36rpx;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+}
+
+.levelInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.levelName {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: block;
+  margin-bottom: 8rpx;
+  @include text-ellipsis;
+}
+
+.tagRow {
+  display: flex;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+}
+
+.right {
+  flex-shrink: 0;
+}
+
+.scoreBox {
+  text-align: right;
+}
+
+.scoreValue {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  color: $color-success;
+  line-height: 1;
+}
+
+.scoreLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-left: 4rpx;
+}
+
+.arrow {
+  font-size: 40rpx;
+  color: $color-text-tertiary;
+  font-weight: $font-weight-bold;
+}
+
+.desc {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: $line-height-normal;
+  margin-bottom: $spacing-md;
+  display: block;
+  @include text-ellipsis-multi(2);
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-md;
+}
+
+.progressWrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.meta {
+  flex-shrink: 0;
+}
+
+.metaText {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  white-space: nowrap;
+}

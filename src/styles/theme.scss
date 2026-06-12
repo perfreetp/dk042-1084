@@ -1,0 +1,46 @@
+// ============================================
+// 主题配色变量 - 行业黑话闯关小程序
+// ============================================
+
+// 品牌主题色：靛蓝色（智慧与专业，年轻活力）
+$color-primary: #6366F1;
+$color-primary-light: #818CF8;
+$color-primary-dark: #4F46E5;
+$color-primary-bg: rgba(99, 102, 241, 0.08);
+$color-primary-gradient: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+
+// 功能色
+$color-success: #10B981;
+$color-success-bg: rgba(16, 185, 129, 0.1);
+$color-warning: #F59E0B;
+$color-warning-bg: rgba(245, 158, 11, 0.1);
+$color-error: #EF4444;
+$color-error-bg: rgba(239, 68, 68, 0.1);
+$color-info: #06B6D4;
+$color-achievement: #8B5CF6;
+$color-achievement-bg: rgba(139, 92, 246, 0.1);
+
+// 场景标签色
+$color-scene-meeting: #3B82F6;
+$color-scene-report: #06B6D4;
+$color-scene-sales: #F97316;
+$color-scene-hiring: #EC4899;
+$color-scene-review: #84CC16;
+
+// 背景色
+$color-bg-page: #F1F5F9;
+$color-bg-page-gradient: linear-gradient(180deg, #EEF2FF 0%, #F1F5F9 100%);
+$color-bg-card: #ffffff;
+$color-bg-hover: #F8FAFC;
+$color-bg-tag: #F1F5F9;
+
+// 文本色
+$color-text-primary: #0F172A;
+$color-text-secondary: #475569;
+$color-text-tertiary: #94A3B8;
+$color-text-disabled: #CBD5E1;
+$color-text-white: #ffffff;
+
+// 边框色
+$color-border: #E2E8F0;
+$color-divider: #F1F5F9;

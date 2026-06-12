@@ -1,0 +1,37 @@
+@use '@/styles/variables.scss' as *;
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  border: 2rpx solid transparent;
+  font-weight: $font-weight-medium;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.sizeSmall {
+  padding: 6rpx 16rpx;
+  border-radius: $radius-round;
+  font-size: $font-size-xs;
+}
+
+.sizeMedium {
+  padding: 10rpx 24rpx;
+  border-radius: $radius-round;
+  font-size: $font-size-sm;
+}
+
+.icon {
+  font-size: $font-size-sm;
+  line-height: 1;
+}
+
+.text {
+  line-height: 1.2;
+}
+
+.outline {
+  border-style: solid;
+  background-color: transparent !important;
+}

@@ -1,0 +1,57 @@
+@use '@/styles/variables.scss' as *;
+
+.progressWrap {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.progressBar {
+  flex: 1;
+  background-color: $color-bg-tag;
+  overflow: hidden;
+  position: relative;
+}
+
+.rounded {
+  border-radius: $radius-round;
+}
+
+.progressFill {
+  background: $color-primary-gradient;
+  transition: width $transition-base ease;
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.3) 50%,
+      transparent 100%
+    );
+    animation: shimmer 2s infinite;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.progressText {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+  min-width: 70rpx;
+  text-align: right;
+}

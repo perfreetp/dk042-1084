@@ -1,0 +1,230 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  padding-bottom: 48rpx;
+}
+
+.searchBar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: $color-bg-page-gradient;
+  padding: $spacing-md 0 $spacing-lg;
+  margin: 0 (-$page-padding) $spacing-md;
+  padding-left: $page-padding;
+  padding-right: $page-padding;
+}
+
+.searchBox {
+  display: flex;
+  align-items: center;
+  background: $color-bg-card;
+  border-radius: $radius-button;
+  padding: 0 $spacing-lg;
+  height: $button-height-md;
+  box-shadow: $shadow-card;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+}
+
+.searchIcon {
+  font-size: 32rpx;
+  flex-shrink: 0;
+}
+
+.searchInput {
+  flex: 1;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  background: transparent;
+  border: none;
+  outline: none;
+  height: 100%;
+}
+
+.searchPlaceholder {
+  flex: 1;
+  font-size: $font-size-md;
+  color: $color-text-tertiary;
+}
+
+.tabsRow {
+  display: flex;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+}
+
+.tabItem {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: 12rpx 24rpx;
+  background: $color-bg-card;
+  border-radius: $radius-round;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  box-shadow: $shadow-card;
+  transition: all $transition-base;
+  flex-shrink: 0;
+}
+
+.tabItemActive {
+  background: $color-primary-gradient;
+  color: $color-text-white;
+  font-weight: $font-weight-semibold;
+}
+
+.tabCount {
+  font-size: $font-size-xs;
+  opacity: 0.8;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+}
+
+.sectionTitle {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.sectionAction {
+  font-size: $font-size-sm;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
+.termList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.termCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+  transition: all $transition-base;
+  &:active { transform: scale(0.99); }
+}
+
+.tcHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+  gap: $spacing-md;
+}
+
+.tcInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.tcWord {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  display: block;
+  margin-bottom: $spacing-sm;
+}
+
+.tcTags {
+  display: flex;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+}
+
+.tcCollect {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: $radius-md;
+  @include flex-center;
+  flex-shrink: 0;
+  transition: all $transition-base;
+}
+
+.tcCollectActive {
+  animation: pop 0.3s ease;
+}
+
+@keyframes pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.tcCollectIcon {
+  font-size: 36rpx;
+}
+
+.tcMeaning {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  line-height: $line-height-normal;
+  margin-bottom: $spacing-md;
+  display: block;
+  padding-bottom: $spacing-md;
+  border-bottom: 2rpx solid $color-divider;
+}
+
+.tcFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tcExample {
+  flex: 1;
+  min-width: 0;
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  @include text-ellipsis;
+  padding-left: $spacing-sm;
+  border-left: 4rpx solid $color-border;
+  margin-right: $spacing-md;
+}
+
+.tcDetailBtn {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-primary;
+}
+
+.synonymRow {
+  display: flex;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+  flex-wrap: wrap;
+}
+
+.synonymTag {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: 8rpx 20rpx;
+  background: $color-primary-bg;
+  border-radius: $radius-round;
+  font-size: $font-size-xs;
+  color: $color-primary;
+}
+
+.synonymLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-right: $spacing-sm;
+  align-self: center;
+}
+
+.emptyWrap {
+  padding: 120rpx 0;
+}

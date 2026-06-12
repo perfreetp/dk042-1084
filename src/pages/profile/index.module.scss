@@ -1,0 +1,338 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  padding-bottom: 48rpx;
+}
+
+.headerSection {
+  background: $color-primary-gradient;
+  padding: $spacing-xl $page-padding 80rpx;
+  padding-top: calc(env(safe-area-inset-top) + 40rpx);
+  margin: 0 (-$page-padding) $spacing-lg;
+  position: relative;
+  overflow: hidden;
+  border-radius: 0 0 $radius-xl $radius-xl;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -80rpx;
+    right: -80rpx;
+    width: 240rpx;
+    height: 240rpx;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+  }
+}
+
+.userRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  position: relative;
+  z-index: 1;
+  margin-bottom: $spacing-xl;
+}
+
+.avatarBox {
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: $radius-round;
+  background: rgba(255,255,255,0.2);
+  backdrop-filter: blur(10px);
+  @include flex-center;
+  border: 4rpx solid rgba(255,255,255,0.3);
+  flex-shrink: 0;
+}
+
+.avatarText {
+  font-size: 60rpx;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+}
+
+.userInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.userName {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+  display: block;
+  margin-bottom: 8rpx;
+  @include text-ellipsis;
+}
+
+.userTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(10px);
+  padding: 6rpx 20rpx;
+  border-radius: $radius-round;
+  font-size: $font-size-xs;
+  color: $color-text-white;
+}
+
+.statsCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-float;
+  margin: 0 0 $spacing-lg;
+  position: relative;
+  z-index: 2;
+  margin-top: -40rpx;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-sm;
+  text-align: center;
+}
+
+.statsItem {
+  padding: $spacing-sm 0;
+}
+
+.statsValue {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+  display: block;
+  line-height: 1.2;
+  margin-bottom: 4rpx;
+}
+
+.statsLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.sectionTitle {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+}
+
+.sectionAction {
+  font-size: $font-size-sm;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
+.progressCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+  margin-bottom: $spacing-lg;
+}
+
+.sceneProgressRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-md 0;
+
+  &:not(:last-child) {
+    border-bottom: 2rpx solid $color-divider;
+  }
+}
+
+.sceneIconBox {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: $radius-md;
+  @include flex-center;
+  flex-shrink: 0;
+}
+
+.sceneIcon {
+  font-size: 32rpx;
+}
+
+.sceneInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.sceneTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8rpx;
+}
+
+.sceneName {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.sceneRate {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-bold;
+}
+
+.achievementRow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-md;
+  margin-bottom: $spacing-lg;
+}
+
+.achievementItem {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-md;
+  text-align: center;
+  box-shadow: $shadow-card;
+  position: relative;
+}
+
+.achievementItemLocked {
+  opacity: 0.5;
+}
+
+.achievementIcon {
+  font-size: 48rpx;
+  display: block;
+  margin-bottom: $spacing-xs;
+}
+
+.achievementName {
+  font-size: $font-size-xs;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  @include text-ellipsis;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.achievementProgress {
+  font-size: 20rpx;
+  color: $color-text-tertiary;
+}
+
+.menuList {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  box-shadow: $shadow-card;
+  margin-bottom: $spacing-lg;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md $spacing-lg;
+  gap: $spacing-md;
+  transition: background $transition-fast;
+
+  &:not(:last-child) {
+    border-bottom: 2rpx solid $color-divider;
+  }
+
+  &:active {
+    background: $color-bg-hover;
+  }
+}
+
+.menuIcon {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: $radius-md;
+  @include flex-center;
+  flex-shrink: 0;
+}
+
+.menuIconText {
+  font-size: 32rpx;
+}
+
+.menuInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.menuLabel {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.menuDesc {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.menuExtra {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-right: $spacing-sm;
+}
+
+.menuArrow {
+  font-size: 28rpx;
+  color: $color-text-tertiary;
+  flex-shrink: 0;
+}
+
+.rankTeaser {
+  background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  margin-bottom: $spacing-lg;
+}
+
+.rankTeaserIcon {
+  font-size: 48rpx;
+}
+
+.rankTeaserInfo {
+  flex: 1;
+}
+
+.rankTeaserTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: #92400E;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.rankTeaserDesc {
+  font-size: $font-size-xs;
+  color: #B45309;
+}
+
+.rankTeaserBtn {
+  padding: 12rpx 24rpx;
+  background: #F59E0B;
+  color: #fff;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+}

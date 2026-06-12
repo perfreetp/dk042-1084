@@ -1,0 +1,258 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  padding-bottom: 48rpx;
+}
+
+.statsRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-md;
+  margin-bottom: $spacing-lg;
+}
+
+.statCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-md;
+  text-align: center;
+  box-shadow: $shadow-card;
+}
+
+.statValue {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  display: block;
+  line-height: 1.2;
+  margin-bottom: 4rpx;
+}
+
+.statLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.filterRow {
+  display: flex;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-lg;
+  overflow-x: auto;
+  @include scroll-x-container;
+}
+
+.filterItem {
+  @include scroll-x-item(auto);
+  display: inline-flex;
+  padding: 12rpx 24rpx;
+  background: $color-bg-card;
+  border-radius: $radius-round;
+  margin-right: $spacing-sm;
+  box-shadow: $shadow-card;
+}
+
+.filterItemActive {
+  background: $color-error-bg;
+  border: 2rpx solid $color-error;
+}
+
+.filterText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  white-space: nowrap;
+}
+
+.filterTextActive {
+  color: $color-error;
+  font-weight: $font-weight-semibold;
+}
+
+.actionBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+}
+
+.actionTitle {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.actionBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: 12rpx 24rpx;
+  background: $color-primary-gradient;
+  color: $color-text-white;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+}
+
+.mistakeList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.mistakeCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+  position: relative;
+  border-left: 8rpx solid $color-error;
+}
+
+.mcHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+  gap: $spacing-md;
+}
+
+.mcTags {
+  display: flex;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.mcCount {
+  font-size: $font-size-xs;
+  color: $color-error;
+  background: $color-error-bg;
+  padding: 4rpx 16rpx;
+  border-radius: $radius-round;
+  font-weight: $font-weight-semibold;
+  flex-shrink: 0;
+}
+
+.mcTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  line-height: $line-height-normal;
+  margin-bottom: $spacing-md;
+  display: block;
+}
+
+.mcCompare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+  padding: $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+}
+
+.mcBox {
+  padding: $spacing-sm;
+  border-radius: $radius-sm;
+}
+
+.mcBoxWrong {
+  background: rgba(239, 68, 68, 0.08);
+  border: 2rpx solid rgba(239, 68, 68, 0.2);
+}
+
+.mcBoxRight {
+  background: rgba(16, 185, 129, 0.08);
+  border: 2rpx solid rgba(16, 185, 129, 0.2);
+}
+
+.mcBoxLabel {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.mcBoxText {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  line-height: $line-height-tight;
+  @include text-ellipsis-multi(3);
+}
+
+.mcFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: $spacing-md;
+  border-top: 2rpx solid $color-divider;
+}
+
+.mcMeta {
+  display: flex;
+  align-items: center;
+  gap: $spacing-lg;
+}
+
+.mcMetaItem {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.mcActions {
+  display: flex;
+  gap: $spacing-sm;
+}
+
+.mcActionBtn {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  padding: 8rpx 20rpx;
+  border-radius: $radius-button;
+}
+
+.mcActionBtnPractice {
+  background: $color-primary-bg;
+  color: $color-primary;
+}
+
+.mcActionBtnRemove {
+  color: $color-text-tertiary;
+}
+
+.practiceBar {
+  position: fixed;
+  left: $page-padding;
+  right: $page-padding;
+  bottom: calc(env(safe-area-inset-bottom) + 32rpx);
+  background: $color-primary-gradient;
+  color: $color-text-white;
+  padding: $spacing-md $spacing-lg;
+  border-radius: $radius-xl;
+  box-shadow: 0 8rpx 32rpx rgba(99, 102, 241, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 100;
+}
+
+.practiceBarText {
+  font-size: $font-size-sm;
+  color: rgba(255,255,255,0.9);
+}
+
+.practiceBarBtn {
+  font-size: $font-size-md;
+  font-weight: $font-weight-bold;
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+.emptyWrap { padding: 120rpx 0; }
